@@ -1,16 +1,133 @@
-# React + Vite
+# AI Interview Preparation Platform
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An AI-powered interview preparation platform built using the MERN stack with resume upload, authentication, and AI-based interview analysis.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+* User Authentication using JWT
+* Login and Registration System
+* Resume PDF Upload
+* AI-based Interview Report Generation
+* Protected Routes
+* MongoDB Database Integration
+* REST API Architecture
+* Frontend and Backend Integration
+* Responsive UI
 
-## React Compiler
+---
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+# Tech Stack
 
-## Expanding the ESLint configuration
+## Frontend
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+* React.js
+* Vite
+* Axios
+* SCSS
+
+## Backend
+
+* Node.js
+* Express.js
+* MongoDB
+* JWT Authentication
+* Multer
+* PDF Parsing
+
+---
+
+# Project Structure
+
+```bash
+Frontend/
+Backend/
+```
+
+---
+
+# Installation
+
+## Clone Repository
+
+```bash
+git clone https://github.com/Manas4518/your-repo-name.git
+```
+
+---
+
+# Backend Setup
+
+```bash
+cd Backend
+npm install
+npm start
+```
+
+Backend runs on:
+
+```bash
+http://localhost:5000
+```
+
+---
+
+# Frontend Setup
+
+```bash
+cd Frontend
+npm install
+npm run dev
+```
+
+Frontend runs on:
+
+```bash
+http://localhost:5173
+```
+
+---
+
+# Environment Variables
+
+Create a `.env` file inside Backend:
+
+```env
+MONGO_URI=your_mongodb_uri
+JWT_SECRET=your_secret_key
+GEMINI_API_KEY=your_api_key
+```
+
+---
+
+# Screenshots
+
+Add screenshots of:
+
+* Login Page
+* Register Page
+* Resume Upload
+* Interview Report
+* Dashboard
+
+---
+
+# Future Improvements
+
+* AI Mock Interview Voice Assistant
+* Interview Score Prediction
+* Better Resume Analysis
+* Dark Mode
+* Interview History Tracking
+* Deployment on Render/Vercel
+
+---
+
+# Resume Description
+
+Built a full-stack AI interview preparation platform with resume upload and AI-based interview analysis. Implemented JWT authentication, protected routes, MongoDB integration, and REST APIs using the MERN stack.
+
+---
+
+# Author
+
+Manas Wani

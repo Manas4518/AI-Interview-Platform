@@ -1,91 +1,79 @@
-import { getAllInterviewReports, generateInterviewReport, getInterviewReportById, generateResumePdf } from "../services/interview.api"
-import { useContext, useEffect } from "react"
-import { InterviewContext } from "../interview.context"
-import { useParams } from "react-router"
+import { useEffect, useState } from "react";
 
+import {
+    generateInterviewReport,
+    getAllInterviewReports,
+} from "../services/interview.api";
 
 export const useInterview = () => {
 
-    const context = useContext(InterviewContext)
-    const { interviewId } = useParams()
+    const [loading, setLoading] = useState(false);
 
-    if (!context) {
-        throw new Error("useInterview must be used within an InterviewProvider")
-    }
+    const [reports, setReports] = useState([]);
 
-    const { loading, setLoading, report, setReport, reports, setReports } = context
+    const generateReport = async ({
+        jobDescription,
+        selfDescription,
+        resumeFile,
+    }) => {
 
-    const generateReport = async ({ jobDescription, selfDescription, resumeFile }) => {
-        setLoading(true)
-        let response = null
         try {
-            response = await generateInterviewReport({ jobDescription, selfDescription, resumeFile })
-            setReport(response.interviewReport)
-        } catch (error) {
-            console.log(error)
+
+            setLoading(true);
+
+            const data = await generateInterviewReport({
+                jobDescription,
+                selfDescription,
+                resumeFile,
+            });
+
+            console.log("GENERATED REPORT:", data);
+
+            return data;
+
+        } catch (err) {
+
+            console.log("GENERATE ERROR:", err);
+
+            alert("Failed to generate report");
+
         } finally {
-            setLoading(false)
+
+            setLoading(false);
+
         }
 
-        return response.interviewReport
-    }
-
-    const getReportById = async (interviewId) => {
-        setLoading(true)
-        let response = null
-        try {
-            response = await getInterviewReportById(interviewId)
-            setReport(response.interviewReport)
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setLoading(false)
-        }
-        return response.interviewReport
-    }
+    };
 
     const getReports = async () => {
-        setLoading(true)
-        let response = null
+
         try {
-            response = await getAllInterviewReports()
-            setReports(response.interviewReports)
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setLoading(false)
+
+            const data = await getAllInterviewReports();
+
+            console.log("REPORTS:", data);
+
+            if (data && data.interviewReports) {
+                setReports(data.interviewReports);
+            }
+
+        } catch (err) {
+
+            console.log("REPORT ERROR:", err);
+
         }
 
-        return response.interviewReports
-    }
-
-    const getResumePdf = async (interviewReportId) => {
-        setLoading(true)
-        let response = null
-        try {
-            response = await generateResumePdf({ interviewReportId })
-            const url = window.URL.createObjectURL(new Blob([ response ], { type: "application/pdf" }))
-            const link = document.createElement("a")
-            link.href = url
-            link.setAttribute("download", `resume_${interviewReportId}.pdf`)
-            document.body.appendChild(link)
-            link.click()
-        }
-        catch (error) {
-            console.log(error)
-        } finally {
-            setLoading(false)
-        }
-    }
+    };
 
     useEffect(() => {
-        if (interviewId) {
-            getReportById(interviewId)
-        } else {
-            getReports()
-        }
-    }, [ interviewId ])
 
-    return { loading, report, reports, generateReport, getReportById, getReports, getResumePdf }
+        getReports();
 
-}
+    }, []);
+
+    return {
+        loading,
+        reports,
+        generateReport,
+    };
+};
