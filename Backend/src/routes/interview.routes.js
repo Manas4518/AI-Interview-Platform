@@ -1,42 +1,55 @@
-const express = require("express")
-const authMiddleware = require("../middlewares/auth.middleware")
-const interviewController = require("../controllers/interview.controller")
-const upload = require("../middlewares/file.middleware")
+const { Router } = require("express");
 
-const interviewRouter = express.Router()
+const {
+  generateInterViewReportController,
+  getInterviewReportByIdController,
+  getAllInterviewReportsController,
+  generateResumePdfController,
+} = require("../controllers/interview.controller");
 
+const authMiddleware = require("../middlewares/auth.middleware");
 
+const multer = require("multer");
 
-/**
- * @route POST /api/interview/
- * @description generate new interview report on the basis of user self description,resume pdf and job description.
- * @access private
- */
-interviewRouter.post("/", authMiddleware.authUser, upload.single("resume"), interviewController.generateInterViewReportController)
+const upload = multer();
 
-/**
- * @route GET /api/interview/report/:interviewId
- * @description get interview report by interviewId.
- * @access private
- */
-interviewRouter.get("/report/:interviewId", authMiddleware.authUser, interviewController.getInterviewReportByIdController)
-
+const interviewRouter = Router();
 
 /**
- * @route GET /api/interview/
- * @description get all interview reports of logged in user.
- * @access private
+ * Generate Interview Report
  */
-interviewRouter.get("/", authMiddleware.authUser, interviewController.getAllInterviewReportsController)
-
+interviewRouter.post(
+  "/generate",
+  upload.single("resume"),
+  authMiddleware.authUser,
+  generateInterViewReportController
+);
 
 /**
- * @route GET /api/interview/resume/pdf
- * @description generate resume pdf on the basis of user self description, resume content and job description.
- * @access private
+ * Get all reports
  */
-interviewRouter.post("/resume/pdf/:interviewReportId", authMiddleware.authUser, interviewController.generateResumePdfController)
+interviewRouter.get(
+  "/reports",
+  authMiddleware.authUser,
+  getAllInterviewReportsController
+);
 
+/**
+ * Get report by ID
+ */
+interviewRouter.get(
+  "/reports/:interviewId",
+  authMiddleware.authUser,
+  getInterviewReportByIdController
+);
 
+/**
+ * Generate Resume PDF
+ */
+interviewRouter.get(
+  "/resume/:interviewReportId",
+  authMiddleware.authUser,
+  generateResumePdfController
+);
 
-module.exports = interviewRouter
+module.exports = interviewRouter;

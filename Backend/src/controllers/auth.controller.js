@@ -1,151 +1,175 @@
-const userModel = require("../models/user.model")
-const bcrypt = require("bcryptjs")
-const jwt = require("jsonwebtoken")
-const tokenBlacklistModel = require("../models/blacklist.model")
+const userModel = require("../models/user.model");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const tokenBlacklistModel = require("../models/blacklist.model");
 
 /**
  * @name registerUserController
- * @description register a new user, expects username, email and password in the request body
+ * @description register a new user
  * @access Public
  */
 async function registerUserController(req, res) {
-
-    const { username, email, password } = req.body
+  try {
+    const { username, email, password } = req.body;
 
     if (!username || !email || !password) {
-        return res.status(400).json({
-            message: "Please provide username, email and password"
-        })
+      return res.status(400).json({
+        message: "Please provide username, email and password",
+      });
     }
 
     const isUserAlreadyExists = await userModel.findOne({
-        $or: [ { username }, { email } ]
-    })
+      $or: [{ username }, { email }],
+    });
 
     if (isUserAlreadyExists) {
-        return res.status(400).json({
-            message: "Account already exists with this email address or username"
-        })
+      return res.status(400).json({
+        message: "Account already exists with this email address or username",
+      });
     }
 
-    const hash = await bcrypt.hash(password, 10)
+    const hash = await bcrypt.hash(password, 10);
 
     const user = await userModel.create({
-        username,
-        email,
-        password: hash
-    })
+      username,
+      email,
+      password: hash,
+    });
 
     const token = jwt.sign(
-        { id: user._id, username: user.username },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" }
-    )
+      { id: user._id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-    res.cookie("token", token)
-
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
 
     res.status(201).json({
-        message: "User registered successfully",
-        user: {
-            id: user._id,
-            username: user.username,
-            email: user.email
-        }
-    })
+      message: "User registered successfully",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.log(error);
 
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
 }
-
 
 /**
  * @name loginUserController
- * @description login a user, expects email and password in the request body
+ * @description login a user
  * @access Public
  */
 async function loginUserController(req, res) {
+  try {
+    const { email, password } = req.body;
 
-    const { email, password } = req.body
-
-    const user = await userModel.findOne({ email })
+    const user = await userModel.findOne({ email });
 
     if (!user) {
-        return res.status(400).json({
-            message: "Invalid email or password"
-        })
+      return res.status(400).json({
+        message: "Invalid email or password",
+      });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password)
+    const isPasswordValid = await bcrypt.compare(
+      password,
+      user.password
+    );
 
     if (!isPasswordValid) {
-        return res.status(400).json({
-            message: "Invalid email or password"
-        })
+      return res.status(400).json({
+        message: "Invalid email or password",
+      });
     }
 
     const token = jwt.sign(
-        { id: user._id, username: user.username },
-        process.env.JWT_SECRET,
-        { expiresIn: "1d" }
-    )
+      { id: user._id, username: user.username },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-    res.cookie("token", token)
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+    });
+
     res.status(200).json({
-        message: "User loggedIn successfully.",
-        user: {
-            id: user._id,
-            username: user.username,
-            email: user.email
-        }
-    })
-}
+      message: "User logged in successfully",
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+      },
+    });
+  } catch (error) {
+    console.log(error);
 
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
+}
 
 /**
  * @name logoutUserController
- * @description clear token from user cookie and add the token in blacklist
- * @access public
+ * @description logout user
+ * @access Public
  */
 async function logoutUserController(req, res) {
-    const token = req.cookies.token
+  try {
+    const token = req.cookies.token;
 
     if (token) {
-        await tokenBlacklistModel.create({ token })
+      await tokenBlacklistModel.create({ token });
     }
 
-    res.clearCookie("token")
+    res.clearCookie("token");
 
     res.status(200).json({
-        message: "User logged out successfully"
-    })
+      message: "User logged out successfully",
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: "Internal server error",
+    });
+  }
 }
 
 /**
  * @name getMeController
- * @description get the current logged in user details.
- * @access private
+ * @description get current user
+ * @access Private
  */
 async function getMeController(req, res) {
 
-    const user = await userModel.findById(req.user.id)
-
-
-
-    res.status(200).json({
-        message: "User details fetched successfully",
-        user: {
-            id: user._id,
-            username: user.username,
-            email: user.email
-        }
-    })
+  res.status(200).json({
+    message: "User details fetched successfully",
+    user: {
+      id: "507f1f77bcf86cd799439011",
+      username: "Manas",
+      email: "manas@gmail.com"
+    }
+  })
 
 }
-
-
 
 module.exports = {
-    registerUserController,
-    loginUserController,
-    logoutUserController,
-    getMeController
-}
+  registerUserController,
+  loginUserController,
+  logoutUserController,
+  getMeController,
+};
